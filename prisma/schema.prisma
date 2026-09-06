@@ -1,0 +1,156 @@
+// Prisma schema for UGC EXPERT
+// SQLite lightweight embedded database: no passwords, no background services, zero configuration
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Creator {
+  id                   String       @id @default(cuid())
+  name                 String
+  avatar               String?
+  city                 String       @default("Алматы")
+  categories           String       @default("[\"Әсемдік UGC\", \"Lifestyle\"]")
+  level                Int          @default(1)
+  rating               Float        @default(5.0)
+  reviewsCount         Int          @default(0)
+  totalEarnings        Int          @default(0)
+  salesCount           Int          @default(0)
+  completedOrdersCount Int          @default(0)
+  points               Int          @default(100)
+  archetype            String       @default("Дос")
+  questionnaire        String?      @default("{}")
+  bio                  String?
+  verified             Boolean      @default(false)
+  status               String       @default("active")
+  socialMedia          String?      @default("{}")
+  portfolio            String?      @default("[]")
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  goal                 Goal?
+  wallet               Wallet?
+  orders               Order[]
+
+  @@map("creators")
+}
+
+model Goal {
+  id              String   @id @default(cuid())
+  creatorId       String   @unique
+  creator         Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  title           String
+  targetAmount    Int
+  collectedAmount Int      @default(0)
+  targetDate      String?
+  category        String   @default("car")
+  image           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("goals")
+}
+
+model Wallet {
+  id             String        @id @default(cuid())
+  creatorId      String        @unique
+  creator        Creator       @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  balance        Int           @default(0)
+  pending        Int           @default(0)
+  totalWithdrawn Int           @default(0)
+  updatedAt      DateTime      @updatedAt
+
+  transactions   Transaction[]
+
+  @@map("wallets")
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  walletId      String
+  wallet        Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  title         String
+  amount        Int
+  type          String   // "payout" | "withdrawal"
+  date          String
+  status        String   @default("pending") // "pending" | "completed"
+  paymentMethod String?
+  accountNumber String?
+  createdAt     DateTime @default(now())
+
+  @@map("transactions")
+}
+
+model Campaign {
+  id           String   @id @default(cuid())
+  companyId    String   @default("comp-1")
+  companyName  String
+  companyLogo  String?
+  title        String
+  category     String
+  commission   Int
+  duration     String   @default("1 апта")
+  platform     String   @default("TikTok")
+  deadline     String
+  status       String   @default("active") // "active" | "draft" | "completed"
+  requirements String   @default("[]")     // JSON string
+  product      String   // JSON string of product details
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orders       Order[]
+
+  @@map("campaigns")
+}
+
+model Order {
+  id                String    @id @default(cuid())
+  campaignId        String
+  campaign          Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  creatorId         String
+  creator           Creator   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  companyName       String
+  companyLogo       String?
+  productName       String
+  productPhoto      String?
+  commission        Int
+  referralCode      String?
+  referralLink      String?
+  clicks            Int       @default(0)
+  ordersCount       Int       @default(0)
+  salesVolume       Int       @default(0)
+  earnings          Int       @default(0)
+  status            String    @default("active") // "active" | "in_review" | "approved" | "paid" | "disputed"
+  submittedVideoUrl String?
+  submittedAt       String?
+  reviewComment     String?
+  approvedAt        String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("orders")
+}
+
+model Lesson {
+  id             Int      @id
+  number         Int      @default(1)
+  title          String
+  subtitle       String   @default("")
+  description    String   @default("")
+  videoThumbnail String   @default("")
+  videoDuration  String   @default("15 мин")
+  isCompleted    Boolean  @default(false)
+  isLocked       Boolean  @default(true)
+  score          Int?     @default(0)
+  keyPoints      String   @default("[]") // JSON string
+  practicalTask  String   @default("")
+  quiz           String?  @default("[]") // JSON string
+  createdAt      DateTime @default(now())
+
+  @@map("lessons")
+}

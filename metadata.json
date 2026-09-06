@@ -1,0 +1,8 @@
+{
+  "name": "Remix UGC EXPERT",
+  "description": "UGC Creator және Admin платформасы: тапсырыс алу, AI сценарист, мақсат-армандар калькуляторы, сабақтар, аналитика және қаржы.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
