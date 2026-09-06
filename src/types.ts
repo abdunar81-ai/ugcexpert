@@ -192,3 +192,10 @@ export interface AIScriptResult {
 export type ViewRole = 'creator' | 'company' | 'admin';
 export type CreatorTab = 'profile' | 'companies' | 'creators';
 export type AdminTab = 'users' | 'lessons' | 'companies' | 'orders' | 'finance' | 'analytics';
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  role: 'creator' | 'admin' | 'company';
+}

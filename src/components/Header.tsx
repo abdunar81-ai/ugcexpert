@@ -1,25 +1,25 @@
 import React from 'react';
 import { ViewRole } from '../types';
-import { Sparkles, Bell, Smartphone, Monitor, ShieldCheck, Building2, UserCheck, Database } from 'lucide-react';
+import { Sparkles, Bell, Smartphone, Monitor, ShieldCheck, Building2, UserCheck, Database, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   currentRole: ViewRole;
-  onRoleChange: (role: ViewRole) => void;
   isMobileFrame: boolean;
   onToggleMobileFrame: () => void;
   unreadNotificationsCount?: number;
   onOpenNotifications: () => void;
   dbStatus?: { isPostgresConnected: boolean; databaseUrlConfigured: boolean } | null;
+  onLogout?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   currentRole,
-  onRoleChange,
   isMobileFrame,
   onToggleMobileFrame,
   unreadNotificationsCount = 2,
   onOpenNotifications,
   dbStatus,
+  onLogout,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-neutral-200 shadow-xs">
@@ -37,59 +37,9 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="hidden xs:inline-block px-1.5 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-md">
                 KZ
               </span>
-              {dbStatus && (
-                <div 
-                  title={dbStatus.isPostgresConnected ? "PostgreSQL Дерекқоры қосылған" : "Сервер режимде: DATABASE_URL арқылы қосылуға дайын"}
-                  className={`hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${
-                    dbStatus.isPostgresConnected
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                      : 'bg-neutral-50 text-neutral-600 border-neutral-200'
-                  }`}
-                >
-                  <Database className="w-2.5 h-2.5 text-neutral-500" />
-                  <span>{dbStatus.isPostgresConnected ? 'PostgreSQL' : 'Full-Stack DB'}</span>
-                </div>
-              )}
             </div>
             <p className="text-[10px] text-neutral-500 hidden sm:block">Креаторлар мен Компаниялар Экожүйесі</p>
           </div>
-        </div>
-
-        {/* Role Switcher Pills */}
-        <div className="flex items-center bg-neutral-100 p-1 rounded-xl border border-neutral-200/80">
-          <button
-            onClick={() => onRoleChange('creator')}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              currentRole === 'creator'
-                ? 'bg-white text-emerald-700 shadow-xs'
-                : 'text-neutral-600 hover:text-neutral-900'
-            }`}
-          >
-            <UserCheck className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline">UGC</span> Креатор
-          </button>
-          <button
-            onClick={() => onRoleChange('company')}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              currentRole === 'company'
-                ? 'bg-white text-emerald-700 shadow-xs'
-                : 'text-neutral-600 hover:text-neutral-900'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5" />
-            <span>Компания</span>
-          </button>
-          <button
-            onClick={() => onRoleChange('admin')}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              currentRole === 'admin'
-                ? 'bg-neutral-900 text-white shadow-xs'
-                : 'text-neutral-600 hover:text-neutral-900'
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Админ</span>
-          </button>
         </div>
 
         {/* Action Controls */}
@@ -124,6 +74,18 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
             )}
           </button>
+
+          {/* Logout Button */}
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="relative p-2 rounded-xl border border-neutral-200 text-neutral-600 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+              aria-label="Шығу"
+              title="Шығу"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
     </header>

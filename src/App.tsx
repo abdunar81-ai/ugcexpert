@@ -7,8 +7,10 @@ import {
   LessonModule, 
   Goal,
   Transaction,
-  OrderTracking
+  OrderTracking,
+  AuthUser
 } from './types';
+import { LoginView } from './components/LoginView';
 import { 
   fetchCampaigns, 
   fetchOrders, 
@@ -77,8 +79,21 @@ const defaultEmptyProfile: CreatorProfile = {
 };
 
 export const App: React.FC = () => {
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
+    const saved = localStorage.getItem('ugc_user');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+
   // Navigation State
-  const [currentRole, setCurrentRole] = useState<ViewRole>('creator');
+  const [currentRole, setCurrentRole] = useState<ViewRole>(currentUser?.role || 'creator');
   const [creatorTab, setCreatorTab] = useState<CreatorTab>('profile');
   const [isMobileFrame, setIsMobileFrame] = useState<boolean>(false);
   const [dbStatus, setDbStatus] = useState<DatabaseStatus['database'] | null>(null);
@@ -280,6 +295,21 @@ export const App: React.FC = () => {
     }));
   };
 
+  const handleLogin = (user: AuthUser) => {
+    setCurrentUser(user);
+    setCurrentRole(user.role);
+    localStorage.setItem('ugc_user', JSON.stringify(user));
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('ugc_user');
+  };
+
+  if (!currentUser) {
+    return <LoginView onLogin={handleLogin} />;
+  }
+
   if (isLoading && !creatorProfile.id) {
     return (
       <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6">
@@ -295,11 +325,11 @@ export const App: React.FC = () => {
       {/* Universal Top Header */}
       <Header
         currentRole={currentRole}
-        onRoleChange={(role) => setCurrentRole(role)}
         isMobileFrame={isMobileFrame}
         onToggleMobileFrame={() => setIsMobileFrame(!isMobileFrame)}
         onOpenNotifications={() => setIsNotificationsOpen(true)}
         dbStatus={dbStatus}
+        onLogout={handleLogout}
       />
 
       {/* Main Container Wrapper */}
