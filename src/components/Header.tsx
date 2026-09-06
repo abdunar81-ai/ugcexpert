@@ -26,9 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2">
         {/* Brand Logo */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-xs">
-            <Sparkles className="w-5 h-5" />
-          </div>
+          <img src="/logo.svg" alt="UGC EXPERT" className="w-8 h-8 sm:w-9 sm:h-9 drop-shadow-sm" />
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-extrabold text-base sm:text-lg tracking-tight text-neutral-900 font-sans">

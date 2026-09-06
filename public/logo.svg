@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="emeraldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#emeraldGradient)" />
+  <!-- A stylized abstract play and sparkle logo -->
+  <path d="M336.5 256L208.25 342.5V169.5L336.5 256Z" fill="#ffffff" />
+  <path d="M394 134L402 110L426 102L402 94L394 70L386 94L362 102L386 110L394 134Z" fill="#a7f3d0" />
+  <path d="M118 198L124 180L142 174L124 168L118 150L112 168L94 174L112 180L118 198Z" fill="#a7f3d0" />
+  <path d="M158 414L166 390L190 382L166 374L158 350L150 374L126 382L150 390L158 414Z" fill="#34d399" />
+</svg>
