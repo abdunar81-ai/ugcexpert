@@ -154,3 +154,16 @@ model Lesson {
 
   @@map("lessons")
 }
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("creator") // "creator", "admin", "company"
+  creatorId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
