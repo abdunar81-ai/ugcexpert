@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CreatorProfile, Campaign, LessonModule, Transaction } from '../../types';
+import { AdminUsersTab } from './AdminUsersTab';
 import { 
   ShieldCheck, 
   Users, 
@@ -37,7 +38,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onUpdateCreatorLevel,
   onApproveWithdrawal,
 }) => {
-  const [activeTab, setActiveTab] = useState<'creators' | 'lessons' | 'campaigns' | 'finance' | 'analytics'>('creators');
+  const [activeTab, setActiveTab] = useState<'creators' | 'lessons' | 'campaigns' | 'finance' | 'analytics' | 'users'>('creators');
+
 
   // Simulated withdrawal requests queue
   const [withdrawals, setWithdrawals] = useState([
@@ -116,6 +118,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           { id: 'campaigns', label: 'Компаниялар', icon: Building2, count: campaigns.length },
           { id: 'finance', label: 'Қаржы & Kaspi', icon: DollarSign, count: withdrawals.filter(w => w.status === 'pending').length },
           { id: 'analytics', label: 'Аналитика', icon: BarChart3 },
+          { id: 'users', label: 'Аккаунттар', icon: Users },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -383,6 +386,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Tab 6: Users */}
+      {activeTab === 'users' && (
+        <AdminUsersTab />
       )}
     </div>
   );

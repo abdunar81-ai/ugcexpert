@@ -13,6 +13,7 @@ import { lessonsRouter } from "./server/routes/lessons.js";
 import { walletRouter } from "./server/routes/wallet.js";
 import { geminiRouter } from "./server/routes/gemini.js";
 import { seedInitialData } from "./server/routes/seed.js";
+import { usersRouter } from "./server/routes/users.js";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use("/api/orders", ordersRouter);
 app.use("/api/lessons", lessonsRouter);
 app.use("/api/wallet", walletRouter);
 app.use("/api/gemini", geminiRouter);
+app.use("/api/users", usersRouter);
 
 // Vite middleware & Static serving
 async function startServer() {

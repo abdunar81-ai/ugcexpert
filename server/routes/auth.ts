@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../prisma.js";
+import bcrypt from "bcryptjs";
 
 export const authRouter = Router();
 
@@ -14,7 +15,12 @@ authRouter.post("/login", async (req, res) => {
       where: { email: email.trim().toLowerCase() }
     });
 
-    if (!user || user.password !== password) {
+    if (!user) {
+      return res.status(401).json({ success: false, message: "Email немесе құпиясөз қате!" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res.status(401).json({ success: false, message: "Email немесе құпиясөз қате!" });
     }
 
