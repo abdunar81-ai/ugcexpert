@@ -14,6 +14,8 @@ import { walletRouter } from "./server/routes/wallet.js";
 import { geminiRouter } from "./server/routes/gemini.js";
 import { seedInitialData } from "./server/routes/seed.js";
 import { usersRouter } from "./server/routes/users.js";
+import { adminRouter } from "./server/routes/admin.js";
+import { notificationsRouter } from "./server/routes/notifications.js";
 
 dotenv.config();
 
@@ -32,6 +34,8 @@ app.use("/api/lessons", lessonsRouter);
 app.use("/api/wallet", walletRouter);
 app.use("/api/gemini", geminiRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/admin", adminRouter);
+app.use("/api/notifications", notificationsRouter);
 
 // Vite middleware & Static serving
 async function startServer() {

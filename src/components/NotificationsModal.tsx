@@ -4,40 +4,17 @@ import { X, Bell, Sparkles, CheckCircle2, ShoppingBag, ArrowUpRight } from 'luci
 interface NotificationsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  notifications: any[];
+  onMarkRead: (id: string) => void;
 }
 
 export const NotificationsModal: React.FC<NotificationsModalProps> = ({
   isOpen,
   onClose,
+  notifications,
+  onMarkRead,
 }) => {
   if (!isOpen) return null;
-
-  const notifications = [
-    {
-      id: 'n-1',
-      title: 'Жаңа сатылым расталды!',
-      description: 'GlowSkin Табиғи бет күтімі бойынша рефералдық сілтемеңізден тапсырыс түсті. +15 000 ₸ әмияныңызға есептелді.',
-      time: '15 минут бұрын',
-      type: 'sale',
-      unread: true,
-    },
-    {
-      id: 'n-2',
-      title: 'Жаңа UGC Кампания: PowerFuel Pro',
-      description: 'Спорттық тағам санатында жаңа жоба іске қосылды. Әр сатылымға 20 000 ₸ комиссия ұсынылады.',
-      time: '2 сағат бұрын',
-      type: 'campaign',
-      unread: true,
-    },
-    {
-      id: 'n-3',
-      title: 'Деңгей көтерілді! 🎉',
-      description: 'Сабақтарды сәтті тапсырғаныңыз үшін сізге +10 Level қосылды (Қазіргі деңгей: LVL 287).',
-      time: 'Кеше',
-      type: 'level',
-      unread: false,
-    },
-  ];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/65 backdrop-blur-xs animate-in fade-in">
@@ -64,7 +41,8 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
           {notifications.map((n) => (
             <div
               key={n.id}
-              className={`p-3.5 rounded-2xl border transition-all ${
+              onClick={() => n.unread && onMarkRead(n.id)}
+              className={`p-3.5 rounded-2xl border transition-all ${n.unread ? "cursor-pointer hover:bg-emerald-50/50" : ""} ${
                 n.unread
                   ? 'bg-emerald-50/40 border-emerald-200/80 shadow-xs'
                   : 'bg-white border-neutral-200/70'

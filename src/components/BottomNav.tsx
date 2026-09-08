@@ -6,14 +6,12 @@ interface BottomNavProps {
   currentTab: CreatorTab;
   onTabChange: (tab: CreatorTab) => void;
   companiesBadge?: number;
-  isMobileFrame?: boolean;
 }
 
 export const BottomNav: React.FC<BottomNavProps> = ({
   currentTab,
   onTabChange,
   companiesBadge = 5,
-  isMobileFrame = false,
 }) => {
   const tabs = [
     {
@@ -36,11 +34,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
 
   return (
     <nav
-      className={`${
-        isMobileFrame
-          ? 'sticky bottom-0 z-40 w-full bg-white/95 backdrop-blur-md border-t border-neutral-200/90'
-          : 'fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-neutral-200/90 shadow-lg'
-      } px-4 py-2 sm:py-2.5 transition-all`}
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-neutral-200/90 shadow-lg px-4 py-2 sm:py-2.5 transition-all"
     >
       <div className="max-w-md mx-auto flex items-center justify-around">
         {tabs.map((tab) => {

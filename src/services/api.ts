@@ -238,3 +238,74 @@ export async function generateAIScript(
     };
   }
 }
+
+export async function fetchWithdrawals(): Promise<any[]> {
+  try {
+    const res = await fetch('/api/admin/withdrawals');
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.withdrawals || [];
+  } catch {
+    return [];
+  }
+}
+
+export async function approveWithdrawal(txId: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/admin/withdrawals/${txId}/approve`, { method: 'POST' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function toggleCreatorVerify(creatorId: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/admin/creators/${creatorId}/verify`, { method: 'PUT' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function updateCreatorLevel(creatorId: string, level: number): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/admin/creators/${creatorId}/level`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ level }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function approveOrderSubmission(orderId: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/orders/${orderId}/approve`, { method: 'POST' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function fetchNotifications(): Promise<any[]> {
+  try {
+    const res = await fetch('/api/notifications');
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.notifications || [];
+  } catch {
+    return [];
+  }
+}
+
+export async function markNotificationRead(id: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/notifications/${id}/read`, { method: 'POST' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

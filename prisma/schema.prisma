@@ -167,3 +167,14 @@ model User {
 
   @@map("users")
 }
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String   // Could be creatorId, companyId, or admin
+  title       String
+  description String
+  time        String
+  type        String   // "sale" | "campaign" | "system" | "warning"
+  unread      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}

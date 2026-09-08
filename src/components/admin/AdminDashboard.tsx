@@ -25,6 +25,8 @@ interface AdminDashboardProps {
   creators: CreatorProfile[];
   campaigns: Campaign[];
   lessons: LessonModule[];
+  orders: any[];
+  withdrawals: any[];
   onToggleVerifyCreator: (creatorId: string) => void;
   onUpdateCreatorLevel: (creatorId: string, newLevel: number) => void;
   onApproveWithdrawal: (txId: string) => void;
@@ -34,48 +36,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   creators,
   campaigns,
   lessons,
+  orders,
+  withdrawals,
   onToggleVerifyCreator,
   onUpdateCreatorLevel,
   onApproveWithdrawal,
 }) => {
   const [activeTab, setActiveTab] = useState<'creators' | 'lessons' | 'campaigns' | 'finance' | 'analytics' | 'users'>('creators');
 
-
-  // Simulated withdrawal requests queue
-  const [withdrawals, setWithdrawals] = useState([
-    {
-      id: 'tx-req-1',
-      creatorName: 'Айжан Бекқызы',
-      amount: 50000,
-      method: 'Kaspi Gold',
-      account: '+7 (707) 890-12-34',
-      date: 'Бүгін, 15:30',
-      status: 'pending',
-    },
-    {
-      id: 'tx-req-2',
-      creatorName: 'Ержан Маратұлы',
-      amount: 120000,
-      method: 'Kaspi Gold',
-      account: '+7 (701) 555-43-21',
-      date: 'Кеше, 19:10',
-      status: 'completed',
-    },
-    {
-      id: 'tx-req-3',
-      creatorName: 'Мадина Серікбай',
-      amount: 75000,
-      method: 'Halyk Bank',
-      account: 'KZ45 6012 3456 7890 1234',
-      date: '12.05.2026',
-      status: 'completed',
-    }
-  ]);
-
   const handleApprove = (id: string) => {
-    setWithdrawals((prev) =>
-      prev.map((w) => (w.id === id ? { ...w, status: 'completed' } : w))
-    );
     onApproveWithdrawal(id);
     confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
   };
@@ -358,36 +327,45 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       )}
 
       {/* Tab 5: Analytics */}
-      {activeTab === 'analytics' && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-white p-4 rounded-3xl border border-neutral-200 shadow-xs">
-              <span className="text-[11px] font-semibold text-neutral-500">Жалпы креаторлар</span>
-              <strong className="text-xl font-extrabold text-neutral-900 font-mono block mt-1">1 428</strong>
-              <span className="text-[10px] text-emerald-600 font-bold">+18% осы айда</span>
-            </div>
+      {activeTab === 'analytics' && (() => {
+        const totalCreators = creators.length;
+        const totalSalesVolume = orders ? orders.reduce((sum, ord) => sum + (ord.salesVolume || 0), 0) : 0;
+        const totalSalesCount = orders ? orders.reduce((sum, ord) => sum + (ord.ordersCount || 0), 0) : 0;
+        const totalEarnings = orders ? orders.reduce((sum, ord) => sum + (ord.earnings || 0), 0) : 0;
+        const platformCommission = totalSalesVolume * 0.1;
+        
+        const formatMoney = (val) => {
+          if (val > 1000000) return (val / 1000000).toFixed(1) + ' млн ₸';
+          return val.toLocaleString('kk-KZ') + ' ₸';
+        };
 
-            <div className="bg-white p-4 rounded-3xl border border-neutral-200 shadow-xs">
-              <span className="text-[11px] font-semibold text-neutral-500">Жалпы сауда (GMV)</span>
-              <strong className="text-xl font-extrabold text-neutral-900 font-mono block mt-1 truncate">84.2 млн ₸</strong>
-              <span className="text-[10px] text-neutral-400 font-mono">12 450 сатылым</span>
-            </div>
-
-            <div className="bg-white p-4 rounded-3xl border border-neutral-200 shadow-xs">
-              <span className="text-[11px] font-semibold text-neutral-500">Креаторлар табысы</span>
-              <strong className="text-xl font-extrabold text-emerald-600 font-mono block mt-1 truncate">16.8 млн ₸</strong>
-              <span className="text-[10px] text-emerald-700 font-medium">Орташа 150k ₸/адам</span>
-            </div>
-
-            <div className="bg-white p-4 rounded-3xl border border-neutral-200 shadow-xs">
-              <span className="text-[11px] font-semibold text-neutral-500">Платформа комиссиясы</span>
-              <strong className="text-xl font-extrabold text-neutral-900 font-mono block mt-1 truncate">8.42 млн ₸</strong>
-              <span className="text-[10px] text-emerald-600 font-bold">10% таза маржа</span>
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-white p-4 rounded-3xl border border-neutral-200 shadow-xs">
+                <span className="text-[11px] font-semibold text-neutral-500">Жалпы креаторлар</span>
+                <strong className="text-xl font-extrabold text-neutral-900 font-mono block mt-1">{totalCreators}</strong>
+                <span className="text-[10px] text-emerald-600 font-bold">Осы айда қосылғандар бар</span>
+              </div>
+              <div className="bg-white p-4 rounded-3xl border border-neutral-200 shadow-xs">
+                <span className="text-[11px] font-semibold text-neutral-500">Жалпы сауда (GMV)</span>
+                <strong className="text-xl font-extrabold text-neutral-900 font-mono block mt-1 truncate">{formatMoney(totalSalesVolume)}</strong>
+                <span className="text-[10px] text-neutral-400 font-mono">{totalSalesCount} сатылым</span>
+              </div>
+              <div className="bg-white p-4 rounded-3xl border border-neutral-200 shadow-xs">
+                <span className="text-[11px] font-semibold text-neutral-500">Креаторлар табысы</span>
+                <strong className="text-xl font-extrabold text-emerald-600 font-mono block mt-1 truncate">{formatMoney(totalEarnings)}</strong>
+                <span className="text-[10px] text-emerald-700 font-medium">Белсенді кіріс</span>
+              </div>
+              <div className="bg-white p-4 rounded-3xl border border-neutral-200 shadow-xs">
+                <span className="text-[11px] font-semibold text-neutral-500">Платформа комиссиясы</span>
+                <strong className="text-xl font-extrabold text-neutral-900 font-mono block mt-1 truncate">{formatMoney(platformCommission)}</strong>
+                <span className="text-[10px] text-emerald-600 font-bold">10% таза маржа</span>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-
+        );
+      })()}
       {/* Tab 6: Users */}
       {activeTab === 'users' && (
         <AdminUsersTab />

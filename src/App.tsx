@@ -21,8 +21,8 @@ import {
   updateCreatorProfile as apiUpdateProfile, 
   updateCreatorGoal as apiUpdateGoal, 
   createCampaign as apiCreateCampaign, 
-  submitOrderVideo as apiSubmitVideo, 
-  completeLesson as apiCompleteLesson, 
+  submitOrderVideo as apiSubmitVideo, approveOrderSubmission, 
+  completeLesson as apiCompleteLesson, fetchWithdrawals, fetchNotifications, markNotificationRead, approveWithdrawal, toggleCreatorVerify, updateCreatorLevel, 
   requestWithdrawal as apiWithdraw,
   DatabaseStatus
 } from './services/api';
@@ -95,7 +95,6 @@ export const App: React.FC = () => {
   // Navigation State
   const [currentRole, setCurrentRole] = useState<ViewRole>(currentUser?.role || 'creator');
   const [creatorTab, setCreatorTab] = useState<CreatorTab>('profile');
-  const [isMobileFrame, setIsMobileFrame] = useState<boolean>(false);
   const [dbStatus, setDbStatus] = useState<DatabaseStatus['database'] | null>(null);
 
   // Domain State (Loaded directly from SQLite Database API)
@@ -104,6 +103,8 @@ export const App: React.FC = () => {
   const [lessons, setLessons] = useState<LessonModule[]>([]);
   const [creatorsList, setCreatorsList] = useState<CreatorProfile[]>([]);
   const [orders, setOrders] = useState<OrderTracking[]>([]);
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Initial Load from Backend API
@@ -111,13 +112,15 @@ export const App: React.FC = () => {
     let isMounted = true;
     async function loadData() {
       try {
-        const [statusRes, campaignsRes, ordersRes, creatorsRes, profileRes, lessonsRes] = await Promise.allSettled([
+        const [statusRes, campaignsRes, ordersRes, creatorsRes, profileRes, lessonsRes, withdrawalsRes, notificationsRes] = await Promise.allSettled([
           getDatabaseStatus(),
           fetchCampaigns(),
           fetchOrders(),
           fetchCreatorsList(),
           fetchCreatorProfile(),
           fetchLessons(),
+          fetchWithdrawals(),
+          fetchNotifications(),
         ]);
 
         if (!isMounted) return;
@@ -139,6 +142,12 @@ export const App: React.FC = () => {
         }
         if (lessonsRes.status === 'fulfilled' && lessonsRes.value) {
           setLessons(lessonsRes.value);
+        }
+        if (withdrawalsRes.status === 'fulfilled' && withdrawalsRes.value) {
+          setWithdrawals(withdrawalsRes.value);
+        }
+        if (notificationsRes.status === 'fulfilled' && notificationsRes.value) {
+          setNotifications(notificationsRes.value);
         }
       } catch (err) {
         console.warn('Initial server sync error:', err);
@@ -263,6 +272,18 @@ export const App: React.FC = () => {
     apiCreateCampaign(newCampaign).catch(console.warn);
   };
 
+  const handleMarkNotificationRead = (id: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, unread: false } : n));
+    markNotificationRead(id).catch(console.warn);
+  };
+
+  const handleApproveSubmission = (orderId: string) => {
+    setOrders((prev) =>
+      prev.map((ord) => (ord.id === orderId ? { ...ord, status: 'approved' } : ord))
+    );
+    approveOrderSubmission(orderId).catch(console.warn);
+  };
+
   const handleToggleVerifyCreator = (creatorId: string) => {
     setCreatorsList((prev) =>
       prev.map((c) => (c.id === creatorId ? { ...c, verified: !c.verified } : c))
@@ -270,6 +291,8 @@ export const App: React.FC = () => {
     if (creatorProfile.id === creatorId) {
       setCreatorProfile((prev) => ({ ...prev, verified: !prev.verified }));
     }
+    // Sync to backend API
+    toggleCreatorVerify(creatorId).catch(console.warn);
   };
 
   const handleUpdateCreatorLevel = (creatorId: string, newLevel: number) => {
@@ -279,6 +302,8 @@ export const App: React.FC = () => {
     if (creatorProfile.id === creatorId) {
       setCreatorProfile((prev) => ({ ...prev, level: newLevel }));
     }
+    // Sync to backend API
+    updateCreatorLevel(creatorId, newLevel).catch(console.warn);
   };
 
   const handleApproveWithdrawal = (txId: string) => {
@@ -293,6 +318,13 @@ export const App: React.FC = () => {
         ),
       },
     }));
+    
+    setWithdrawals((prev) => 
+      prev.map((w) => w.id === txId ? { ...w, status: 'completed' } : w)
+    );
+
+    // Sync to backend API
+    approveWithdrawal(txId).catch(console.warn);
   };
 
   const handleLogin = (user: AuthUser) => {
@@ -325,22 +357,14 @@ export const App: React.FC = () => {
       {/* Universal Top Header */}
       <Header
         currentRole={currentRole}
-        isMobileFrame={isMobileFrame}
-        onToggleMobileFrame={() => setIsMobileFrame(!isMobileFrame)}
         onOpenNotifications={() => setIsNotificationsOpen(true)}
         dbStatus={dbStatus}
         onLogout={handleLogout}
       />
 
       {/* Main Container Wrapper */}
-      <main className={`flex-1 flex justify-center py-3 sm:py-6 px-2 sm:px-4 ${currentRole === 'creator' && !isMobileFrame ? 'pb-20 sm:pb-24' : ''}`}>
-        <div
-          className={`w-full transition-all duration-300 ${
-            isMobileFrame
-              ? 'max-w-md bg-neutral-50 rounded-3xl shadow-2xl border-4 border-neutral-800 overflow-hidden flex flex-col min-h-[750px] relative'
-              : 'max-w-4xl'
-          }`}
-        >
+      <main className={`flex-1 flex justify-center py-3 sm:py-6 px-2 sm:px-4 ${currentRole === 'creator' ? 'pb-20 sm:pb-24' : ''}`}>
+        <div className="w-full transition-all duration-300 max-w-4xl">
           {/* Active View Container */}
           <div className="flex-1 p-2 sm:p-4">
             {/* ROLE 1: CREATOR DASHBOARD */}
@@ -350,6 +374,7 @@ export const App: React.FC = () => {
                   <ProfileView
                     creator={creatorProfile}
                     lessons={lessons}
+                orders={orders}
                     onOpenGoalModal={() => setIsGoalModalOpen(true)}
                     onOpenLessonsModal={() => setIsLessonsModalOpen(true)}
                     onOpenWalletModal={() => setIsWalletModalOpen(true)}
@@ -382,7 +407,10 @@ export const App: React.FC = () => {
             {currentRole === 'company' && (
               <CompanyDashboard
                 campaigns={campaigns}
+                orders={orders}
+                creators={creatorsList}
                 onAddCampaign={handleAddCampaign}
+                onApproveSubmission={handleApproveSubmission}
               />
             )}
 
@@ -392,6 +420,8 @@ export const App: React.FC = () => {
                 creators={creatorsList}
                 campaigns={campaigns}
                 lessons={lessons}
+                orders={orders}
+                withdrawals={withdrawals}
                 onToggleVerifyCreator={handleToggleVerifyCreator}
                 onUpdateCreatorLevel={handleUpdateCreatorLevel}
                 onApproveWithdrawal={handleApproveWithdrawal}
@@ -405,7 +435,6 @@ export const App: React.FC = () => {
               currentTab={creatorTab}
               onTabChange={(tab) => setCreatorTab(tab)}
               companiesBadge={campaigns.length}
-              isMobileFrame={isMobileFrame}
             />
           )}
         </div>
@@ -423,6 +452,7 @@ export const App: React.FC = () => {
         isOpen={isLessonsModalOpen}
         onClose={() => setIsLessonsModalOpen(false)}
         lessons={lessons}
+                orders={orders}
         onCompleteModule={handleCompleteLessonModule}
       />
 
@@ -464,6 +494,8 @@ export const App: React.FC = () => {
       <NotificationsModal
         isOpen={isNotificationsOpen}
         onClose={() => setIsNotificationsOpen(false)}
+        notifications={notifications}
+        onMarkRead={handleMarkNotificationRead}
       />
     </div>
   );

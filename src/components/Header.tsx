@@ -4,8 +4,6 @@ import { Sparkles, Bell, Smartphone, Monitor, ShieldCheck, Building2, UserCheck,
 
 interface HeaderProps {
   currentRole: ViewRole;
-  isMobileFrame: boolean;
-  onToggleMobileFrame: () => void;
   unreadNotificationsCount?: number;
   onOpenNotifications: () => void;
   dbStatus?: { isPostgresConnected: boolean; databaseUrlConfigured: boolean } | null;
@@ -14,8 +12,6 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   currentRole,
-  isMobileFrame,
-  onToggleMobileFrame,
   unreadNotificationsCount = 2,
   onOpenNotifications,
   dbStatus,
@@ -42,25 +38,6 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Frame Toggle */}
-          <button
-            onClick={onToggleMobileFrame}
-            title={isMobileFrame ? 'Толық экранға ауысу' : 'Смартфон форматында көру'}
-            className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 text-xs font-medium transition-colors"
-          >
-            {isMobileFrame ? (
-              <>
-                <Monitor className="w-3.5 h-3.5 text-neutral-500" />
-                <span>Десктоп</span>
-              </>
-            ) : (
-              <>
-                <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Мобильді</span>
-              </>
-            )}
-          </button>
-
           {/* Notifications Bell */}
           <button
             onClick={onOpenNotifications}

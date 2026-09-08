@@ -19,12 +19,18 @@ import confetti from 'canvas-confetti';
 
 interface CompanyDashboardProps {
   campaigns: Campaign[];
+  orders: any[];
+  creators: CreatorProfile[];
   onAddCampaign: (newCampaign: Campaign) => void;
+  onApproveSubmission: (orderId: string) => void;
 }
 
 export const CompanyDashboard: React.FC<CompanyDashboardProps> = ({
   campaigns,
+  orders,
+  creators,
   onAddCampaign,
+  onApproveSubmission,
 }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -37,32 +43,24 @@ export const CompanyDashboard: React.FC<CompanyDashboardProps> = ({
   const [newProductDesc, setNewProductDesc] = useState('');
   const [newProductPhoto, setNewProductPhoto] = useState('https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=80');
 
-  // Review submissions simulated state
-  const [submissions, setSubmissions] = useState([
-    {
-      id: 'sub-1',
-      creatorName: 'Айжан Бекқызы',
-      creatorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
-      campaignTitle: 'GlowSkin Табиғи бет күтімі',
-      videoUrl: 'https://tiktok.com/@aizhan/video/123',
-      date: 'Бүгін, 14:20',
-      status: 'pending',
-    },
-    {
-      id: 'sub-2',
-      creatorName: 'Ержан Маратұлы',
-      creatorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
-      campaignTitle: 'CoffeeLand Дәнді кофе',
-      videoUrl: 'https://instagram.com/reel/456',
-      date: 'Кеше, 18:45',
-      status: 'approved',
-    }
-  ]);
+  const submissions = orders
+    .filter((o) => o.submittedVideoUrl)
+    .map((o) => {
+      const creator = creators.find(c => c.id === o.creatorId);
+      const campaign = campaigns.find(c => c.id === o.campaignId);
+      return {
+        id: o.id,
+        creatorName: creator?.name || 'Белгісіз',
+        creatorAvatar: creator?.avatar || '',
+        campaignTitle: campaign?.title || o.productName,
+        videoUrl: o.submittedVideoUrl,
+        date: o.submittedAt || 'Бүгін',
+        status: o.status === 'approved' ? 'approved' : 'pending',
+      };
+    });
 
   const handleApproveSubmission = (subId: string) => {
-    setSubmissions((prev) =>
-      prev.map((s) => (s.id === subId ? { ...s, status: 'approved' } : s))
-    );
+    onApproveSubmission(subId);
     confetti({
       particleCount: 50,
       spread: 60,
